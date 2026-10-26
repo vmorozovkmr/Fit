@@ -1,91 +1,115 @@
-<script>
-// Замените на ваши данные
-const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID';
-const API_KEY = 'YOUR_API_KEY';
-const RANGE = 'Sheet1!A2:C'; // Берем только Дата, Имя, Калории
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой график КБЖУ</title>
+    <!-- 1. ПОДКЛЮЧАЕМ БИБЛИОТЕКУ CHART.JS -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f8f9fc;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 60vh;
+            width: 80vw;
+        }
+    </style>
+</head>
+<body>
 
-async function fetchData() {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        return data.values;
-    } catch (error) {
-        console.error("Ошибка при получении данных:", error);
-        return null;
+    <h2 style="text-align: center;">Сравнение калорийности</h2>
+
+    <!-- 2. ДОБАВЛЯЕМ КОНТЕЙНЕР ДЛЯ ГРАФИКА (ОБЯЗАТЕЛЬНО!) -->
+    <div class="chart-container">
+        <canvas id="kbjuChart"></canvas>
+    </div>
+
+    <!-- 3. ВАШ ИСПРАВЛЕННЫЙ СКРИПТ -->
+    <script>
+    const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID'; // Укажите ваш ID таблицы
+    const API_KEY = 'YOUR_API_KEY';               // Укажите ваш API ключ
+    const RANGE = 'Sheet1!A2:C'; 
+
+    async function fetchData() {
+        const url = `https://googleapis.com{SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Ошибка сети: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.values;
+        } catch (error) {
+            console.error("Ошибка при получении данных:", error);
+            return null;
+        }
     }
-}
 
-async function renderChart() {
-    const rows = await fetchData();
-    if (!rows || rows.length === 0) return;
-
-    // Объект для группировки данных по датам
-    const dataByDate = {};
-
-    rows.forEach(row => {
-        const [date, name, calories] = row;
-        if (!date || !name) return; // Пропускаем пустые строки
-
-        // Если даты еще нет в объекте, создаем для нее структуру
-        if (!dataByDate[date]) {
-            dataByDate[date] = { 'Человек 1': 0, 'Человек 2': 0 };
+    async function renderChart() {
+        const rows = await fetchData();
+        if (!rows || rows.length === 0) {
+            console.warn("Данные не найдены или таблица пуста.");
+            return;
         }
 
-        // Записываем калории (переводим в число)
-        if (name === 'Человек 1' || name === 'Человек 2') {
-            dataByDate[date][name] = parseFloat(calories) || 0;
-        }
-    });
+        const dataByDate = {};
 
-    // Формируем массивы для Chart.js
-    const labels = Object.keys(dataByDate); // Уникальные даты
-    const person1Calories = [];
-    const person2Calories = [];
+        rows.forEach(row => {
+            const [date, name, calories] = row;
+            if (!date || !name) return;
 
-    labels.forEach(date => {
-        person1Calories.push(dataByDate[date]['Человек 1']);
-        person2Calories.push(dataByDate[date]['Человек 2']);
-    });
+            if (!dataByDate[date]) {
+                dataByDate[date] = { 'Человек 1': 0, 'Человек 2': 0 };
+            }
 
-    const ctx = document.getElementById('kbjuChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Человек 1 (Ккал)',
-                    data: person1Calories,
-                    backgroundColor: '#4e73df'
-                },
-                {
-                    label: 'Человек 2 (Ккал)',
-                    data: person2Calories,
-                    backgroundColor: '#1cc88a'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Калории (ккал)'
+            if (name === 'Человек 1' || name === 'Человек 2') {
+                dataByDate[date][name] = parseFloat(calories) || 0;
+            }
+        });
+
+        const labels = Object.keys(dataByDate);
+        const person1Calories = [];
+        const person2Calories = [];
+
+        labels.forEach(date => {
+            person1Calories.push(dataByDate[date]['Человек 1']);
+            person2Calories.push(dataByDate[date]['Человек 2']);
+        });
+
+        const ctx = document.getElementById('kbjuChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Человек 1 (Ккал)',
+                        data: person1Calories,
+                        backgroundColor: '#4e73df'
+                    },
+                    {
+                        label: 'Человек 2 (Ккал)',
+                        data: person2Calories,
+                        backgroundColor: '#1cc88a'
                     }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Дата'
-                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
                 }
             }
-        }
-    });
-}
+        });
+    }
 
-renderChart();
-</script>
+    renderChart();
+    </script>
+</body>
+</html>
