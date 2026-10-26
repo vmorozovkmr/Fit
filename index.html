@@ -1,0 +1,51 @@
+<script>
+    // Замените на ваши данные
+    const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID';
+    const API_KEY = 'YOUR_API_KEY';
+    const RANGE = 'Sheet1!A2:E'; // Дата, Имя, Калории, Белки, Жиры, Углеводы
+
+    async function fetchData() {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.values;
+    }
+
+    async function renderChart() {
+        const rows = await fetchData();
+        if (!rows) return;
+
+        const labels = [];
+        const person1Calories = [];
+        const person2Calories = [];
+
+        rows.forEach(row => {
+            const [date, name, calories] = row;
+            labels.push(date);
+            if (name === 'Человек 1') {
+                person1Calories.push(calories);
+                person2Calories.push(0); 
+            } else if (name === 'Человек 2') {
+                person1Calories.push(0);
+                person2Calories.push(calories);
+            }
+        });
+
+        const ctx = document.getElementById('kbjuChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Человек 1 (Ккал)', data: person1Calories, backgroundColor: '#4e73df' },
+                    { label: 'Человек 2 (Ккал)', data: person2Calories, backgroundColor: '#1cc88a' }
+                ]
+            },
+            options: {
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    renderChart();
+</script>
