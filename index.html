@@ -1,51 +1,91 @@
 <script>
-    // Замените на ваши данные
-    const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID';
-    const API_KEY = 'YOUR_API_KEY';
-    const RANGE = 'Sheet1!A2:E'; // Дата, Имя, Калории, Белки, Жиры, Углеводы
+// Замените на ваши данные
+const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID';
+const API_KEY = 'YOUR_API_KEY';
+const RANGE = 'Sheet1!A2:C'; // Берем только Дата, Имя, Калории
 
-    async function fetchData() {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+async function fetchData() {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+    try {
         const response = await fetch(url);
         const data = await response.json();
         return data.values;
+    } catch (error) {
+        console.error("Ошибка при получении данных:", error);
+        return null;
     }
+}
 
-    async function renderChart() {
-        const rows = await fetchData();
-        if (!rows) return;
+async function renderChart() {
+    const rows = await fetchData();
+    if (!rows || rows.length === 0) return;
 
-        const labels = [];
-        const person1Calories = [];
-        const person2Calories = [];
+    // Объект для группировки данных по датам
+    const dataByDate = {};
 
-        rows.forEach(row => {
-            const [date, name, calories] = row;
-            labels.push(date);
-            if (name === 'Человек 1') {
-                person1Calories.push(calories);
-                person2Calories.push(0); 
-            } else if (name === 'Человек 2') {
-                person1Calories.push(0);
-                person2Calories.push(calories);
+    rows.forEach(row => {
+        const [date, name, calories] = row;
+        if (!date || !name) return; // Пропускаем пустые строки
+
+        // Если даты еще нет в объекте, создаем для нее структуру
+        if (!dataByDate[date]) {
+            dataByDate[date] = { 'Человек 1': 0, 'Человек 2': 0 };
+        }
+
+        // Записываем калории (переводим в число)
+        if (name === 'Человек 1' || name === 'Человек 2') {
+            dataByDate[date][name] = parseFloat(calories) || 0;
+        }
+    });
+
+    // Формируем массивы для Chart.js
+    const labels = Object.keys(dataByDate); // Уникальные даты
+    const person1Calories = [];
+    const person2Calories = [];
+
+    labels.forEach(date => {
+        person1Calories.push(dataByDate[date]['Человек 1']);
+        person2Calories.push(dataByDate[date]['Человек 2']);
+    });
+
+    const ctx = document.getElementById('kbjuChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Человек 1 (Ккал)',
+                    data: person1Calories,
+                    backgroundColor: '#4e73df'
+                },
+                {
+                    label: 'Человек 2 (Ккал)',
+                    data: person2Calories,
+                    backgroundColor: '#1cc88a'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Калории (ккал)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Дата'
+                    }
+                }
             }
-        });
+        }
+    });
+}
 
-        const ctx = document.getElementById('kbjuChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    { label: 'Человек 1 (Ккал)', data: person1Calories, backgroundColor: '#4e73df' },
-                    { label: 'Человек 2 (Ккал)', data: person2Calories, backgroundColor: '#1cc88a' }
-                ]
-            },
-            options: {
-                scales: { y: { beginAtZero: true } }
-            }
-        });
-    }
-
-    renderChart();
+renderChart();
 </script>
