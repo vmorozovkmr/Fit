@@ -13,7 +13,6 @@
       --text: #e8eaed;
       --muted: #9aa0a6;
       --primary: #5b8def;
-      --primary-hover: #4a7de0;
       --green: #34d399;
       --orange: #fbbf24;
       --red: #f87171;
@@ -29,11 +28,11 @@
       min-height: 100vh;
     }
 
-    .container { max-width: 980px; margin: 0 auto; }
+    .container { max-width: 1100px; margin: 0 auto; }
 
     header {
       text-align: center;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
     header h1 {
@@ -46,29 +45,48 @@
 
     header p { color: var(--muted); margin-top: 4px; }
 
-    .form-card {
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .stat-card .label { font-size: 0.82rem; color: var(--muted); }
+    .stat-card .value { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
+    .ven .value { color: var(--primary); }
+    .dar .value { color: var(--green); }
+
+    .form-card, .chart-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 28px;
+      padding: 22px;
+      margin-bottom: 24px;
     }
 
-    .form-card h2 {
-      font-size: 1.15rem;
-      margin-bottom: 20px;
+    .form-card h2, .chart-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 16px;
     }
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 14px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     label {
       display: block;
-      font-size: 0.83rem;
+      font-size: 0.82rem;
       color: var(--muted);
       margin-bottom: 5px;
     }
@@ -94,11 +112,11 @@
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
     button {
-      padding: 11px 22px;
+      padding: 11px 20px;
       border: none;
       border-radius: 9px;
       font-weight: 600;
@@ -110,7 +128,7 @@
       background: var(--primary);
       color: white;
     }
-    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-primary:hover { opacity: 0.9; }
 
     .btn-secondary {
       background: transparent;
@@ -119,7 +137,7 @@
     }
 
     .status {
-      margin-top: 14px;
+      margin-top: 12px;
       font-size: 0.9rem;
       min-height: 22px;
     }
@@ -129,9 +147,14 @@
 
     .hidden { display: none !important; }
 
+    .chart-container {
+      position: relative;
+      height: 280px;
+    }
+
     @media (max-width: 600px) {
       body { padding: 12px; }
-      header h1 { font-size: 1.4rem; }
+      header h1 { font-size: 1.35rem; }
     }
   </style>
 </head>
@@ -142,11 +165,31 @@
       <p>Вениамин & Дарья</p>
     </header>
 
+    <!-- Сводки -->
+    <div class="stats">
+      <div class="stat-card ven">
+        <div class="label">Вениамин • сожжено сегодня</div>
+        <div class="value" id="statVenBurn">—</div>
+      </div>
+      <div class="stat-card dar">
+        <div class="label">Дарья • сожжено сегодня</div>
+        <div class="value" id="statDarBurn">—</div>
+      </div>
+      <div class="stat-card ven">
+        <div class="label">Вениамин • съедено сегодня</div>
+        <div class="value" id="statVenEat">—</div>
+      </div>
+      <div class="stat-card dar">
+        <div class="label">Дарья • съедено сегодня</div>
+        <div class="value" id="statDarEat">—</div>
+      </div>
+    </div>
+
+    <!-- Форма -->
     <div class="form-card">
       <h2>Добавить запись</h2>
 
       <form id="trackerForm">
-        <!-- Общие поля -->
         <div class="form-grid">
           <div>
             <label>Тип записи</label>
@@ -155,12 +198,10 @@
               <option value="Активность">🔥 Активность</option>
             </select>
           </div>
-
           <div>
             <label>Дата</label>
             <input type="date" id="inputDate" required>
           </div>
-
           <div>
             <label>Участник</label>
             <select id="inputName">
@@ -170,7 +211,7 @@
           </div>
         </div>
 
-        <!-- ========== БЛОК ПИТАНИЯ ========== -->
+        <!-- Питание -->
         <div id="nutritionFields">
           <div class="form-grid">
             <div>
@@ -180,35 +221,28 @@
                 <option value="Обед">Обед</option>
                 <option value="Ужин">Ужин</option>
                 <option value="Перекус">Перекус</option>
-                <option value="Другое">Другое</option>
               </select>
             </div>
-
             <div>
               <label>Блюдо / Продукт</label>
-              <input type="text" id="inputDish" placeholder="Овсянка, курица, банан...">
+              <input type="text" id="inputDish" placeholder="Овсянка, курица...">
             </div>
-
             <div>
               <label>Вес (г)</label>
-              <input type="number" id="inputWeight" min="0" step="1" placeholder="0">
+              <input type="number" id="inputWeight" min="0" placeholder="0">
             </div>
-
             <div>
-              <label>Калории (ккал)</label>
-              <input type="number" id="inputCalories" min="0" step="1" placeholder="0" required>
+              <label>Калории</label>
+              <input type="number" id="inputCalories" min="0" placeholder="0" required>
             </div>
-
             <div>
               <label>Белки (г)</label>
               <input type="number" id="inputProtein" min="0" step="0.1" placeholder="0">
             </div>
-
             <div>
               <label>Жиры (г)</label>
               <input type="number" id="inputFat" min="0" step="0.1" placeholder="0">
             </div>
-
             <div>
               <label>Углеводы (г)</label>
               <input type="number" id="inputCarbs" min="0" step="0.1" placeholder="0">
@@ -216,7 +250,7 @@
           </div>
         </div>
 
-        <!-- ========== БЛОК АКТИВНОСТИ ========== -->
+        <!-- Активность -->
         <div id="activityFields" class="hidden">
           <div class="form-grid">
             <div>
@@ -227,12 +261,9 @@
                 <option value="Домашняя тренировка">Домашняя тренировка</option>
                 <option value="Прогулка">Прогулка</option>
                 <option value="Бег">Бег</option>
-                <option value="Велосипед">Велосипед</option>
-                <option value="Растяжка / Йога">Растяжка / Йога</option>
                 <option value="Другое">Другое</option>
               </select>
             </div>
-
             <div>
               <label>Локация</label>
               <select id="inputLocation">
@@ -240,94 +271,102 @@
                 <option value="Дом">Дом</option>
                 <option value="Улица">Улица</option>
                 <option value="Парк">Парк</option>
-                <option value="Другое">Другое</option>
               </select>
             </div>
-
             <div>
               <label>Длительность (мин)</label>
               <input type="number" id="inputDuration" min="0" placeholder="0">
             </div>
-
             <div>
               <label>Сожжено (ккал)</label>
               <input type="number" id="inputBurned" min="0" placeholder="0" required>
             </div>
           </div>
-
-          <div style="margin-top: 12px;">
-            <label>Самочувствие / Заметки</label>
-            <textarea id="inputNotes" placeholder="Как прошло, настроение..."></textarea>
+          <div style="margin-top: 10px;">
+            <label>Заметки</label>
+            <textarea id="inputNotes" placeholder="Как прошло..."></textarea>
           </div>
         </div>
 
         <div class="btn-row">
-          <button type="submit" class="btn-primary">Сохранить в таблицу</button>
+          <button type="submit" class="btn-primary">Сохранить</button>
+          <button type="button" class="btn-secondary" id="refreshBtn">Обновить статистику</button>
         </div>
 
         <div class="status" id="statusMsg"></div>
       </form>
     </div>
+
+    <!-- Графики -->
+    <div class="chart-card">
+      <h3>Расход калорий (Активность)</h3>
+      <div class="chart-container">
+        <canvas id="activityChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Потребление калорий (Питание)</h3>
+      <div class="chart-container">
+        <canvas id="nutritionChart"></canvas>
+      </div>
+    </div>
   </div>
 
 <script>
   // ====================== НАСТРОЙКИ ======================
-  // ← СЮДА вставь свой актуальный URL Apps Script
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcqrKN9yEn-mzbjHNmizhsEtbmBezYIksjg5_IcxgmlDXWjy-FUFQX-VoEauvXtx0/exec';
+  const SHEET_ID = '1rYEecH-H5h0zCBcw-dyTcVqO4rCg3vpNh70Q4yW2ns0';
+  const API_KEY = 'AIzaSyD6qEm6UvTNbG0vR4cypJX8aZ2C4ZYvNLg';
 
-  // Сегодняшняя дата
-  document.getElementById('inputDate').valueAsDate = new Date();
-
-  // Переключение форм
+  // ====================== ЭЛЕМЕНТЫ ======================
+  const form = document.getElementById('trackerForm');
+  const statusMsg = document.getElementById('statusMsg');
   const sheetSelect = document.getElementById('targetSheet');
   const nutritionFields = document.getElementById('nutritionFields');
   const activityFields = document.getElementById('activityFields');
 
-  sheetSelect.addEventListener('change', function () {
-    if (this.value === 'КБЖУ и Питание') {
-      nutritionFields.classList.remove('hidden');
-      activityFields.classList.add('hidden');
-    } else {
-      nutritionFields.classList.add('hidden');
-      activityFields.classList.remove('hidden');
-    }
+  document.getElementById('inputDate').valueAsDate = new Date();
+
+  // Переключение форм
+  sheetSelect.addEventListener('change', () => {
+    const isNutrition = sheetSelect.value === 'КБЖУ и Питание';
+    nutritionFields.classList.toggle('hidden', !isNutrition);
+    activityFields.classList.toggle('hidden', isNutrition);
   });
 
-  // Отправка формы
-  document.getElementById('trackerForm').addEventListener('submit', async (e) => {
+  // ====================== ОТПРАВКА ======================
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const status = document.getElementById('statusMsg');
-    status.className = 'status loading';
-    status.textContent = 'Сохраняю...';
+    statusMsg.className = 'status loading';
+    statusMsg.textContent = 'Отправляю...';
 
     const sheetName = sheetSelect.value;
-    let rowValues = [];
+    let values = [];
 
     if (sheetName === 'КБЖУ и Питание') {
-      // B → J
-      rowValues = [
-        document.getElementById('inputDate').value,                    // B Дата
-        document.getElementById('inputName').value,                    // C Участник
-        document.getElementById('inputMeal').value,                    // D Прием пищи
-        document.getElementById('inputDish').value,                    // E Блюдо
-        Number(document.getElementById('inputWeight').value) || 0,     // F Вес
-        Number(document.getElementById('inputCalories').value) || 0,   // G Калории
-        Number(document.getElementById('inputProtein').value) || 0,    // H Белки
-        Number(document.getElementById('inputFat').value) || 0,        // I Жиры
-        Number(document.getElementById('inputCarbs').value) || 0       // J Углеводы
+      values = [
+        document.getElementById('inputDate').value,
+        document.getElementById('inputName').value,
+        document.getElementById('inputMeal').value,
+        document.getElementById('inputDish').value,
+        Number(document.getElementById('inputWeight').value) || 0,
+        Number(document.getElementById('inputCalories').value) || 0,
+        Number(document.getElementById('inputProtein').value) || 0,
+        Number(document.getElementById('inputFat').value) || 0,
+        Number(document.getElementById('inputCarbs').value) || 0
       ];
     } else {
-      // Активность: B → I
-      rowValues = [
-        document.getElementById('inputDate').value,                    // B Дата
-        document.getElementById('inputName').value,                    // C Участник
-        document.getElementById('inputActivity').value,                // D Вид активности
-        document.getElementById('inputLocation').value,                // E Локация
-        Number(document.getElementById('inputDuration').value) || 0,   // F Длительность
-        Number(document.getElementById('inputBurned').value) || 0,     // G Сожжено
-        '',                                                            // H Неделя (пусто)
-        document.getElementById('inputNotes').value                    // I Заметки
+      values = [
+        document.getElementById('inputDate').value,
+        document.getElementById('inputName').value,
+        document.getElementById('inputActivity').value,
+        document.getElementById('inputLocation').value,
+        Number(document.getElementById('inputDuration').value) || 0,
+        Number(document.getElementById('inputBurned').value) || 0,
+        '',
+        document.getElementById('inputNotes').value
       ];
     }
 
@@ -335,36 +374,131 @@
       await fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sheetName: sheetName,
-          values: rowValues
-        })
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ sheetName, values })
       });
 
-      status.className = 'status success';
-      status.textContent = 'Запись успешно добавлена!';
+      statusMsg.className = 'status success';
+      statusMsg.textContent = 'Запись отправлена! Обновляю статистику...';
 
       // Очистка
       if (sheetName === 'КБЖУ и Питание') {
-        document.getElementById('inputDish').value = '';
-        document.getElementById('inputWeight').value = '';
-        document.getElementById('inputCalories').value = '';
-        document.getElementById('inputProtein').value = '';
-        document.getElementById('inputFat').value = '';
-        document.getElementById('inputCarbs').value = '';
+        ['inputDish','inputWeight','inputCalories','inputProtein','inputFat','inputCarbs']
+          .forEach(id => document.getElementById(id).value = '');
       } else {
         document.getElementById('inputDuration').value = '';
         document.getElementById('inputBurned').value = '';
         document.getElementById('inputNotes').value = '';
       }
 
+      setTimeout(refreshStats, 1500);
+
     } catch (err) {
-      status.className = 'status error';
-      status.textContent = 'Ошибка отправки. Проверь URL Apps Script.';
+      statusMsg.className = 'status error';
+      statusMsg.textContent = 'Ошибка отправки';
       console.error(err);
     }
   });
+
+  // ====================== СТАТИСТИКА ======================
+  let activityChart = null;
+  let nutritionChart = null;
+
+  async function fetchSheet(range) {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?key=${API_KEY}`;
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      return data.values || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function processData(rows, calorieIndex) {
+    const result = {};
+    rows.forEach(row => {
+      if (!row || row.length < 2) return;
+      const date = row[0];
+      const name = row[1];
+      const cal = parseInt(row[calorieIndex]) || 0;
+      if (!date || !name) return;
+      if (!result[date]) result[date] = { 'Вениамин': 0, 'Дарья': 0 };
+      if (name === 'Вениамин' || name === 'Дарья') {
+        result[date][name] += cal;
+      }
+    });
+    return result;
+  }
+
+  function renderChart(canvasId, data, oldChart) {
+    if (oldChart) oldChart.destroy();
+    const labels = Object.keys(data).sort();
+    const ven = labels.map(d => data[d]['Вениамин'] || 0);
+    const dar = labels.map(d => data[d]['Дарья'] || 0);
+
+    return new Chart(document.getElementById(canvasId), {
+      type: 'bar',
+      data: {
+        labels: labels.length ? labels : ['Нет данных'],
+        datasets: [
+          { label: 'Вениамин', data: labels.length ? ven : [0], backgroundColor: 'rgba(91,141,239,0.85)', borderRadius: 5 },
+          { label: 'Дарья', data: labels.length ? dar : [0], backgroundColor: 'rgba(52,211,153,0.85)', borderRadius: 5 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#9aa0a6' } } },
+        scales: {
+          x: { ticks: { color: '#9aa0a6' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { beginAtZero: true, ticks: { color: '#9aa0a6' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        }
+      }
+    });
+  }
+
+  async function refreshStats() {
+    statusMsg.className = 'status loading';
+    statusMsg.textContent = 'Обновляю статистику...';
+
+    const [actRows, nutRows] = await Promise.all([
+      fetchSheet('Активность!B9:I'),
+      fetchSheet('КБЖУ и Питание!B10:J')
+    ]);
+
+    const actData = processData(actRows, 5); // Сожжено в колонке G (индекс 5)
+    const nutData = processData(nutRows, 5); // Калории в колонке G (индекс 5)
+
+    activityChart = renderChart('activityChart', actData, activityChart);
+    nutritionChart = renderChart('nutritionChart', nutData, nutritionChart);
+
+    // Сегодня
+    const today = new Date().toISOString().slice(0, 10);
+    const findToday = (data) => {
+      for (let key in data) {
+        if (key.includes(today.slice(5)) || key === today) return data[key];
+      }
+      return { 'Вениамин': 0, 'Дарья': 0 };
+    };
+
+    const actToday = findToday(actData);
+    const nutToday = findToday(nutData);
+
+    document.getElementById('statVenBurn').textContent = (actToday['Вениамин'] || 0) + ' ккал';
+    document.getElementById('statDarBurn').textContent = (actToday['Дарья'] || 0) + ' ккал';
+    document.getElementById('statVenEat').textContent = (nutToday['Вениамин'] || 0) + ' ккал';
+    document.getElementById('statDarEat').textContent = (nutToday['Дарья'] || 0) + ' ккал';
+
+    statusMsg.className = 'status success';
+    statusMsg.textContent = 'Статистика обновлена';
+    setTimeout(() => statusMsg.textContent = '', 2000);
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', refreshStats);
+
+  // Первый запуск
+  refreshStats();
 </script>
 </body>
 </html>
