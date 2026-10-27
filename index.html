@@ -43,7 +43,6 @@
         // ==========================================
         const MY_API_KEY = 'AIzaSyD6qEm6UvTNbG0vR4cypJX8aZ2C4ZYvNLg';
 
-        // ИСПРАВЛЕНО: Точный и проверенный адрес API без опечаток
         const SHEET_ID = '1rYEecH-H5h0zCBcw-dyTcVqO4rCg3vpNh70Q4yW2ns0';
         const url = 'https://googleapis.com' + SHEET_ID + '/values/%D0%90%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D1%81%D1%82%D1%8C!A9:F?key=' + MY_API_KEY;
 
@@ -71,14 +70,13 @@
             const dataByDate = {};
 
             rows.forEach(row => {
-                // ИСПРАВЛЕНО: Индексы жестко прописаны числами (0 - Дата, 1 - Имя, 5 - Калории)
-                const date = row[0];        
-                const name = row[1];        
-                const rawCalories = row[5]; 
+                // ИСПРАВЛЕНО: Безопасный разбор строки без ломающихся квадратных скобок
+                // Берем 1-й элемент (дата), 2-й (имя), пропускаем три и берем 6-й (калории)
+                const [date, name, , , , rawCalories] = row;
                 
                 if (!date || !name || !rawCalories) return;
 
-                // Убираем текст "ккал", преобразуя строку в число
+                // Убираем текст "ккал", превращая в чистое число
                 const calories = parseInt(rawCalories.replace(/[^\d]/g, '')) || 0;
 
                 if (!dataByDate[date]) {
