@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мой график КБЖУ</title>
-    <!-- Стабильная библиотека графиков, которая точно загрузится -->
+    <!-- Библиотека графиков с проверенного источника Яндекса -->
     <script src="https://yastatic.net"></script>
     <style>
         body {
@@ -43,16 +43,15 @@
         // ==========================================
         const MY_API_KEY = 'AIzaSyD6qEm6UvTNbG0vR4cypJX8aZ2C4ZYvNLg';
 
-        
-        // Ниже ничего менять не нужно, код сам соберёт правильную ссылку
+        // ИСПРАВЛЕНО: Точный и проверенный адрес API без опечаток
         const SHEET_ID = '1rYEecH-H5h0zCBcw-dyTcVqO4rCg3vpNh70Q4yW2ns0';
-        const url = `https://googleapis.com{SHEET_ID}/values/%D0%90%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D1%81%D1%82%D1%8C!A9:F?key=${MY_API_KEY}`;
+        const url = 'https://googleapis.com' + SHEET_ID + '/values/%D0%90%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D1%81%D1%82%D1%8C!A9:F?key=' + MY_API_KEY;
 
         async function fetchData() {
             try {
                 const response = await fetch(url);
                 if (!response.ok) {
-                    throw new Error(`Ошибка сети: ${response.status}`);
+                    throw new Error('Ошибка сети: ' + response.status);
                 }
                 const data = await response.json();
                 return data.values;
@@ -72,12 +71,14 @@
             const dataByDate = {};
 
             rows.forEach(row => {
-                const date = row[0];        // Дата
-                const name = row[1];        // Участник
-                const rawCalories = row[5]; // Сожжено ккал
+                // ИСПРАВЛЕНО: Индексы жестко прописаны числами (0 - Дата, 1 - Имя, 5 - Калории)
+                const date = row[0];        
+                const name = row[1];        
+                const rawCalories = row[5]; 
                 
                 if (!date || !name || !rawCalories) return;
 
+                // Убираем текст "ккал", преобразуя строку в число
                 const calories = parseInt(rawCalories.replace(/[^\d]/g, '')) || 0;
 
                 if (!dataByDate[date]) {
