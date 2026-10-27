@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мой трекер: Активность и Питание</title>
-    <!-- Исправленный CDN для Chart.js -->
-    <script src="https://jsdelivr.net"></script>
+    <!-- ИСПРАВЛЕНО: Альтернативный надежный CDN cdnjs вместо jsdelivr -->
+    <script src="https://cloudflare.com"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; background-color: #f8f9fc; color: #333; }
         .chart-container { position: relative; margin: 30px auto; height: 40vh; width: 85vw; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -70,14 +70,14 @@
     const MY_API_KEY = 'AIzaSyD6qEm6UvTNbG0vR4cypJX8aZ2C4ZYvNLg'; 
     const SHEET_ID = '1rYEecH-H5h0zCBcw-dyTcVqO4rCg3vpNh70Q4yW2ns0';
     
-    // ВСТАВЬТЕ СЮДА ВАШ СКОПИРОВАННЫЙ URL ИЗ GOOGLE APPS SCRIPT:
+    // ВСТАВЬТЕ СЮДА ВАШ СКОПИРОВАННЫЙ URL ИЗ GOOGLE APPS SCRIPT ДЛЯ ЗАПИСИ:
     const APPS_SCRIPT_URL = 'ВСТАВЬТЕ_СЮДА_URL_ВЕБ_ПРИЛОЖЕНИЯ';
 
     document.getElementById('inputDate').valueAsDate = new Date();
 
-    // ИСПРАВЛЕНО: Закодировано строго с учетом верхнего регистра листов "Активность" и "КБЖУ и Питание"
-    const urlActivity = `https://googleapis.com{SHEET_ID}/values/%D0%90%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D1%81%D1%82%D1%8C!A9:F?key=${MY_API_KEY}`;
-    const urlNutrition = `https://googleapis.com{SHEET_ID}/values/%D0%9A%D0%91%D0%96%D0%A3%20%D0%B8%20%D0%9F%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5!A9:F?key=${MY_API_KEY}`;
+    // ИСПРАВЛЕНО: Строго прописан правильный домен ://googleapis.com
+    const urlActivity = `https://://googleapis.com/v4/spreadsheets/${SHEET_ID}/values/%D0%90%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D1%81%D1%82%D1%8C!A9:F?key=${MY_API_KEY}`;
+    const urlNutrition = `https://://googleapis.com/v4/spreadsheets/${SHEET_ID}/values/%D0%94%D0%BD%D0%B5%D0%B2%D0%BD%D0%B8%D0%BA%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D1%8F!A9:F?key=${MY_API_KEY}`;
 
     let activityChartInstance = null;
     let nutritionChartInstance = null;
@@ -113,6 +113,12 @@
 
     function renderChart(ctxId, dataByDate, yLabel, currentInstance) {
         if (currentInstance) currentInstance.destroy();
+        
+        // Проверяем, загрузилась ли вообще библиотека Chart
+        if (typeof Chart === 'undefined') {
+            console.error("Библиотека Chart.js не загружена. График не может быть отрисован.");
+            return null;
+        }
 
         const labels = Object.keys(dataByDate).sort((a, b) => new Date(a) - new Date(b));
         const veniaminData = [];
@@ -152,7 +158,6 @@
         nutritionChartInstance = renderChart('nutritionChart', processRows(nutritionRows), 'Съедено ккал', nutritionChartInstance);
     }
 
-    // ОТПРАВКА ДАННЫХ ЧЕРЕЗ APPS SCRIPT
     document.getElementById('trackerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -162,13 +167,11 @@
         const desc = document.getElementById('inputDesc').value;
         const calories = Number(document.getElementById('inputCalories').value);
 
-        // ИСПРАВЛЕНО: Формируем массив под структуру таблицы:
-        // Столбцы: A: Дата, B: Участник, C: Вид активности/Прием пищи, D: Локация/Блюдо, E: Длительность/Вес, F: Калории
-        let rowValues = [];
-        if (sheetName === 'Активность') {
-            rowValues = [date, name, desc, 'Сайт', 45, calories]; // 45 мин по умолчанию
-        } else {
-            rowValues = [date, name, 'Сайт', desc, 100, calories]; // 100г по умолчанию
+        const rowValues = [date, name, desc, 'Сайт', 0, calories];
+
+        if (APPS_SCRIPT_URL === 'ВСТАВЬТЕ_СЮДА_URL_ВЕБ_ПРИЛОЖЕНИЯ') {
+            alert('Сначала укажите ваш реальный APPS_SCRIPT_URL в коде страницы.');
+            return;
         }
 
         try {
