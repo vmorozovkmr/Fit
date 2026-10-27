@@ -7,98 +7,119 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg: #0f1117;
-      --card: #1a1d27;
-      --border: #2a2e3b;
-      --text: #e8eaed;
-      --muted: #9aa0a6;
-      --primary: #5b8def;
-      --green: #34d399;
+      --bg: #0c0e14;
+      --card: #14171f;
+      --border: #1e2230;
+      --text: #e6e8ee;
+      --muted: #8b90a0;
+      --primary: #6b8cff;
+      --green: #4ade80;
       --orange: #fbbf24;
-      --red: #f87171;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding: 20px;
-      min-height: 100vh;
+      padding: 24px 16px;
+      line-height: 1.5;
     }
 
-    .container { max-width: 1100px; margin: 0 auto; }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
 
     header {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 32px;
     }
 
     header h1 {
-      font-size: 1.7rem;
-      font-weight: 700;
-      background: linear-gradient(90deg, #5b8def, #34d399);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
     }
 
-    header p { color: var(--muted); margin-top: 4px; }
+    header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
 
+    /* Статистика */
     .stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 14px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
     }
 
     .stat-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 12px;
       padding: 16px;
+      text-align: center;
     }
 
-    .stat-card .label { font-size: 0.82rem; color: var(--muted); }
-    .stat-card .value { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
+    .stat-card .label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .stat-card .value {
+      font-size: 1.35rem;
+      font-weight: 600;
+    }
+
     .ven .value { color: var(--primary); }
     .dar .value { color: var(--green); }
 
-    .form-card, .chart-card {
+    /* Форма */
+    .card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 14px;
       padding: 22px;
       margin-bottom: 24px;
     }
 
-    .form-card h2, .chart-card h3 {
-      font-size: 1.1rem;
-      margin-bottom: 16px;
+    .card h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      color: var(--text);
     }
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 14px;
       margin-bottom: 14px;
     }
 
     label {
       display: block;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       color: var(--muted);
       margin-bottom: 5px;
     }
 
     input, select, textarea {
       width: 100%;
-      padding: 10px 12px;
-      background: #12141c;
+      padding: 9px 12px;
+      background: #0c0e14;
       border: 1px solid var(--border);
-      border-radius: 9px;
+      border-radius: 8px;
       color: var(--text);
-      font-size: 0.95rem;
+      font-size: 0.92rem;
+      transition: border-color 0.15s;
     }
 
     input:focus, select:focus, textarea:focus {
@@ -106,29 +127,31 @@
       border-color: var(--primary);
     }
 
-    textarea { min-height: 70px; resize: vertical; }
+    textarea {
+      min-height: 68px;
+      resize: vertical;
+    }
 
     .btn-row {
       display: flex;
       gap: 10px;
-      flex-wrap: wrap;
       margin-top: 8px;
     }
 
     button {
-      padding: 11px 20px;
-      border: none;
-      border-radius: 9px;
-      font-weight: 600;
-      font-size: 0.95rem;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.9rem;
       cursor: pointer;
+      border: none;
+      transition: opacity 0.15s;
     }
 
     .btn-primary {
       background: var(--primary);
       color: white;
     }
-    .btn-primary:hover { opacity: 0.9; }
 
     .btn-secondary {
       background: transparent;
@@ -136,61 +159,84 @@
       color: var(--text);
     }
 
+    button:hover { opacity: 0.88; }
+
     .status {
       margin-top: 12px;
-      font-size: 0.9rem;
-      min-height: 22px;
+      font-size: 0.87rem;
+      min-height: 20px;
     }
     .status.success { color: var(--green); }
-    .status.error { color: var(--red); }
+    .status.error { color: #f87171; }
     .status.loading { color: var(--orange); }
 
     .hidden { display: none !important; }
 
+    /* Графики */
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .chart-card h3 {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
     .chart-container {
       position: relative;
-      height: 280px;
+      height: 260px;
+    }
+
+    @media (max-width: 700px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      header h1 { font-size: 1.4rem; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Трекер активности и питания</h1>
+      <h1>Трекер</h1>
       <p>Вениамин & Дарья</p>
     </header>
 
-    <!-- Сводки -->
+    <!-- Статистика -->
     <div class="stats">
       <div class="stat-card ven">
-        <div class="label">Вениамин • сожжено сегодня</div>
+        <div class="label">Вен • сожжено</div>
         <div class="value" id="statVenBurn">—</div>
       </div>
       <div class="stat-card dar">
-        <div class="label">Дарья • сожжено сегодня</div>
+        <div class="label">Дарья • сожжено</div>
         <div class="value" id="statDarBurn">—</div>
       </div>
       <div class="stat-card ven">
-        <div class="label">Вениамин • съедено сегодня</div>
+        <div class="label">Вен • съедено</div>
         <div class="value" id="statVenEat">—</div>
       </div>
       <div class="stat-card dar">
-        <div class="label">Дарья • съедено сегодня</div>
+        <div class="label">Дарья • съедено</div>
         <div class="value" id="statDarEat">—</div>
       </div>
     </div>
 
     <!-- Форма -->
-    <div class="form-card">
-      <h2>Добавить запись</h2>
+    <div class="card">
+      <h2>Новая запись</h2>
 
       <form id="trackerForm">
         <div class="form-grid">
           <div>
-            <label>Тип записи</label>
+            <label>Тип</label>
             <select id="targetSheet">
-              <option value="КБЖУ и Питание">🥗 Питание</option>
-              <option value="Активность">🔥 Активность</option>
+              <option value="КБЖУ и Питание">Питание</option>
+              <option value="Активность">Активность</option>
             </select>
           </div>
           <div>
@@ -206,7 +252,7 @@
           </div>
         </div>
 
-        <!-- ========== ПИТАНИЕ ========== -->
+        <!-- Питание -->
         <div id="nutritionFields">
           <div class="form-grid">
             <div>
@@ -220,7 +266,7 @@
             </div>
             <div>
               <label>Блюдо / Продукт</label>
-              <input type="text" id="inputDish" placeholder="Овсянка, курица...">
+              <input type="text" id="inputDish" placeholder="Что ел(а)">
             </div>
             <div>
               <label>Вес (г)</label>
@@ -231,21 +277,21 @@
               <input type="number" id="inputCalories" min="0" placeholder="0">
             </div>
             <div>
-              <label>Белки (г)</label>
+              <label>Белки</label>
               <input type="number" id="inputProtein" min="0" step="0.1" placeholder="0">
             </div>
             <div>
-              <label>Жиры (г)</label>
+              <label>Жиры</label>
               <input type="number" id="inputFat" min="0" step="0.1" placeholder="0">
             </div>
             <div>
-              <label>Углеводы (г)</label>
+              <label>Углеводы</label>
               <input type="number" id="inputCarbs" min="0" step="0.1" placeholder="0">
             </div>
           </div>
         </div>
 
-        <!-- ========== АКТИВНОСТЬ ========== -->
+        <!-- Активность -->
         <div id="activityFields" class="hidden">
           <div class="form-grid">
             <div>
@@ -253,7 +299,7 @@
               <select id="inputActivity">
                 <option value="Силовая (зал)">Силовая (зал)</option>
                 <option value="Кардио">Кардио</option>
-                <option value="Домашняя тренировка">Домашняя тренировка</option>
+                <option value="Домашняя тренировка">Домашняя</option>
                 <option value="Прогулка">Прогулка</option>
                 <option value="Бег">Бег</option>
                 <option value="Другое">Другое</option>
@@ -269,7 +315,7 @@
               </select>
             </div>
             <div>
-              <label>Длительность (мин)</label>
+              <label>Минут</label>
               <input type="number" id="inputDuration" min="0" placeholder="0">
             </div>
             <div>
@@ -277,7 +323,7 @@
               <input type="number" id="inputBurned" min="0" placeholder="0">
             </div>
           </div>
-          <div style="margin-top: 10px;">
+          <div style="margin-top: 8px;">
             <label>Заметки</label>
             <textarea id="inputNotes" placeholder="Как прошло..."></textarea>
           </div>
@@ -285,7 +331,7 @@
 
         <div class="btn-row">
           <button type="submit" class="btn-primary">Сохранить</button>
-          <button type="button" class="btn-secondary" id="refreshBtn">Обновить статистику</button>
+          <button type="button" class="btn-secondary" id="refreshBtn">Обновить</button>
         </div>
 
         <div class="status" id="statusMsg"></div>
@@ -294,14 +340,14 @@
 
     <!-- Графики -->
     <div class="chart-card">
-      <h3>Расход калорий (Активность)</h3>
+      <h3>Расход калорий</h3>
       <div class="chart-container">
         <canvas id="activityChart"></canvas>
       </div>
     </div>
 
     <div class="chart-card">
-      <h3>Потребление калорий (Питание)</h3>
+      <h3>Потребление калорий</h3>
       <div class="chart-container">
         <canvas id="nutritionChart"></canvas>
       </div>
@@ -309,12 +355,10 @@
   </div>
 
 <script>
-  // ====================== НАСТРОЙКИ ======================
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcqrKN9yEn-mzbjHNmizhsEtbmBezYIksjg5_IcxgmlDXWjy-FUFQX-VoEauvXtx0/exec';
   const SHEET_ID = '1rYEecH-H5h0zCBcw-dyTcVqO4rCg3vpNh70Q4yW2ns0';
   const API_KEY = 'AIzaSyD6qEm6UvTNbG0vR4cypJX8aZ2C4ZYvNLg';
 
-  // ====================== ЭЛЕМЕНТЫ ======================
   const form = document.getElementById('trackerForm');
   const statusMsg = document.getElementById('statusMsg');
   const sheetSelect = document.getElementById('targetSheet');
@@ -323,25 +367,21 @@
 
   document.getElementById('inputDate').valueAsDate = new Date();
 
-  // Переключение форм
   sheetSelect.addEventListener('change', () => {
     const isNutrition = sheetSelect.value === 'КБЖУ и Питание';
     nutritionFields.classList.toggle('hidden', !isNutrition);
     activityFields.classList.toggle('hidden', isNutrition);
   });
 
-  // ====================== ОТПРАВКА ======================
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     statusMsg.className = 'status loading';
-    statusMsg.textContent = 'Отправляю...';
+    statusMsg.textContent = 'Сохраняю...';
 
     const sheetName = sheetSelect.value;
     let values = [];
 
     if (sheetName === 'КБЖУ и Питание') {
-      // B → J
       values = [
         document.getElementById('inputDate').value,
         document.getElementById('inputName').value,
@@ -354,7 +394,6 @@
         Number(document.getElementById('inputCarbs').value) || 0
       ];
     } else {
-      // B → I
       values = [
         document.getElementById('inputDate').value,
         document.getElementById('inputName').value,
@@ -372,46 +411,36 @@
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({
-          sheetName: sheetName,
-          values: values
-        })
+        body: JSON.stringify({ sheetName, values })
       });
 
       statusMsg.className = 'status success';
-      statusMsg.textContent = 'Запись отправлена!';
+      statusMsg.textContent = 'Сохранено';
 
-      // Очистка
       if (sheetName === 'КБЖУ и Питание') {
-        document.getElementById('inputDish').value = '';
-        document.getElementById('inputWeight').value = '';
-        document.getElementById('inputCalories').value = '';
-        document.getElementById('inputProtein').value = '';
-        document.getElementById('inputFat').value = '';
-        document.getElementById('inputCarbs').value = '';
+        ['inputDish','inputWeight','inputCalories','inputProtein','inputFat','inputCarbs']
+          .forEach(id => document.getElementById(id).value = '');
       } else {
         document.getElementById('inputDuration').value = '';
         document.getElementById('inputBurned').value = '';
         document.getElementById('inputNotes').value = '';
       }
 
-      setTimeout(refreshStats, 1600);
-
+      setTimeout(refreshStats, 1500);
     } catch (err) {
       statusMsg.className = 'status error';
-      statusMsg.textContent = 'Ошибка отправки';
+      statusMsg.textContent = 'Ошибка';
       console.error(err);
     }
   });
 
-  // ====================== СТАТИСТИКА ======================
+  // Статистика и графики
   let activityChart = null;
   let nutritionChart = null;
 
   async function fetchSheet(range) {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?key=${API_KEY}`;
     try {
-      const res = await fetch(url);
+      const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?key=${API_KEY}`);
       const data = await res.json();
       return data.values || [];
     } catch {
@@ -419,24 +448,23 @@
     }
   }
 
-  function processData(rows, calorieIndex) {
+  function processData(rows, calIndex) {
     const result = {};
     rows.forEach(row => {
       if (!row || row.length < 2) return;
       const date = row[0];
       const name = row[1];
-      const cal = parseInt(row[calorieIndex]) || 0;
+      const cal = parseInt(row[calIndex]) || 0;
       if (!date || !name) return;
       if (!result[date]) result[date] = { 'Вениамин': 0, 'Дарья': 0 };
-      if (name === 'Вениамин' || name === 'Дарья') {
-        result[date][name] += cal;
-      }
+      if (name === 'Вениамин' || name === 'Дарья') result[date][name] += cal;
     });
     return result;
   }
 
   function renderChart(canvasId, data, oldChart) {
     if (oldChart) oldChart.destroy();
+
     const labels = Object.keys(data).sort();
     const ven = labels.map(d => data[d]['Вениамин'] || 0);
     const dar = labels.map(d => data[d]['Дарья'] || 0);
@@ -446,17 +474,47 @@
       data: {
         labels: labels.length ? labels : ['Нет данных'],
         datasets: [
-          { label: 'Вениамин', data: labels.length ? ven : [0], backgroundColor: 'rgba(91,141,239,0.85)', borderRadius: 5 },
-          { label: 'Дарья', data: labels.length ? dar : [0], backgroundColor: 'rgba(52,211,153,0.85)', borderRadius: 5 }
+          {
+            label: 'Вениамин',
+            data: labels.length ? ven : [0],
+            backgroundColor: 'rgba(107, 140, 255, 0.75)',
+            borderRadius: 4,
+            barPercentage: 0.7
+          },
+          {
+            label: 'Дарья',
+            data: labels.length ? dar : [0],
+            backgroundColor: 'rgba(74, 222, 128, 0.75)',
+            borderRadius: 4,
+            barPercentage: 0.7
+          }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: '#9aa0a6' } } },
+        plugins: {
+          legend: {
+            position: 'top',
+            align: 'end',
+            labels: {
+              color: '#8b90a0',
+              boxWidth: 10,
+              padding: 16,
+              font: { size: 12 }
+            }
+          }
+        },
         scales: {
-          x: { ticks: { color: '#9aa0a6' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-          y: { beginAtZero: true, ticks: { color: '#9aa0a6' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          x: {
+            ticks: { color: '#8b90a0', font: { size: 11 } },
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: '#8b90a0', font: { size: 11 } },
+            grid: { color: 'rgba(255,255,255,0.04)' }
+          }
         }
       }
     });
@@ -485,10 +543,10 @@
     const actToday = findToday(actData);
     const nutToday = findToday(nutData);
 
-    document.getElementById('statVenBurn').textContent = (actToday['Вениамин'] || 0) + ' ккал';
-    document.getElementById('statDarBurn').textContent = (actToday['Дарья'] || 0) + ' ккал';
-    document.getElementById('statVenEat').textContent = (nutToday['Вениамин'] || 0) + ' ккал';
-    document.getElementById('statDarEat').textContent = (nutToday['Дарья'] || 0) + ' ккал';
+    document.getElementById('statVenBurn').textContent = (actToday['Вениамин'] || 0);
+    document.getElementById('statDarBurn').textContent = (actToday['Дарья'] || 0);
+    document.getElementById('statVenEat').textContent = (nutToday['Вениамин'] || 0);
+    document.getElementById('statDarEat').textContent = (nutToday['Дарья'] || 0);
   }
 
   document.getElementById('refreshBtn').addEventListener('click', refreshStats);
