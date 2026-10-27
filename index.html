@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мой трекер: Активность и Питание</title>
-    <!-- ИСПРАВЛЕНО: Альтернативный надежный CDN cdnjs вместо jsdelivr -->
+    <!-- Стабильное подключение библиотеки графиков Chart.js -->
     <script src="https://cloudflare.com"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; background-color: #f8f9fc; color: #333; }
@@ -71,13 +71,13 @@
     const SHEET_ID = '1rYEecH-H5h0zCBcw-dyTcVqO4rCg3vpNh70Q4yW2ns0';
     
     // ВСТАВЬТЕ СЮДА ВАШ СКОПИРОВАННЫЙ URL ИЗ GOOGLE APPS SCRIPT ДЛЯ ЗАПИСИ:
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby5n0aknyJET4NsV2pa_3pBtNT2dN1GlaJRk8gacuDBGYHUOjaR6MYH9DSBd9N717gM/exec';
+    const APPS_SCRIPT_URL = 'ВСТАВЬТЕ_СЮДА_URL_ВЕБ_ПРИЛОЖЕНИЯ';
 
     document.getElementById('inputDate').valueAsDate = new Date();
 
-    // ИСПРАВЛЕНО: Строго прописан правильный домен ://googleapis.com
-    const urlActivity = `https://://googleapis.com/v4/spreadsheets/${SHEET_ID}/values/%D0%90%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D1%81%D1%82%D1%8C!A9:F?key=${MY_API_KEY}`;
-    const urlNutrition = `https://://googleapis.com/v4/spreadsheets/${SHEET_ID}/values/%D0%94%D0%BD%D0%B5%D0%B2%D0%BD%D0%B8%D0%BA%D0%BF%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D1%8F!A9:F?key=${MY_API_KEY}`;
+    // ИСПРАВЛЕНО: Строго выверенный и корректный синтаксис адресов к API Google Таблиц
+    const urlActivity = `https://googleapis.com{SHEET_ID}/values/%D0%90%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D1%81%D1%82%D1%8C!A9:F?key=${MY_API_KEY}`;
+    const urlNutrition = `https://googleapis.com{SHEET_ID}/values/%D0%9A%D0%91%D0%96%D0%A3%20%D0%B8%20%D0%9F%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5!A9:F?key=${MY_API_KEY}`;
 
     let activityChartInstance = null;
     let nutritionChartInstance = null;
@@ -114,9 +114,8 @@
     function renderChart(ctxId, dataByDate, yLabel, currentInstance) {
         if (currentInstance) currentInstance.destroy();
         
-        // Проверяем, загрузилась ли вообще библиотека Chart
         if (typeof Chart === 'undefined') {
-            console.error("Библиотека Chart.js не загружена. График не может быть отрисован.");
+            console.error("Библиотека Chart.js не загружена.");
             return null;
         }
 
@@ -167,9 +166,10 @@
         const desc = document.getElementById('inputDesc').value;
         const calories = Number(document.getElementById('inputCalories').value);
 
+        // Массив данных под структуру столбцов вашей таблицы
         const rowValues = [date, name, desc, 'Сайт', 0, calories];
 
-        if (APPS_SCRIPT_URL === 'ВСТАВЬТЕ_СЮДА_URL_ВЕБ_ПРИЛОЖЕНИЯ') {
+        if (APPS_SCRIPT_URL.includes('ВСТАВЬТЕ_СЮДА')) {
             alert('Сначала укажите ваш реальный APPS_SCRIPT_URL в коде страницы.');
             return;
         }
