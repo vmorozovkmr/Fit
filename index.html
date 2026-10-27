@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мой график КБЖУ</title>
-    <!-- ИСПРАВЛЕНО: Подключена актуальная и рабочая версия Chart.js -->
+    <!-- Подключаем библиотеку Chart.js -->
     <script src="https://jsdelivr.net"></script>
     <style>
         body {
@@ -38,13 +38,11 @@
     </div>
 
     <script>
-        // Замените на ваши реальные данные Google Sheets
         const SPREADSHEET_ID = '1rYEecH-H5h0zCBcw-dyTcVqO4rCg3vpNh70Q4yW2ns0'; 
-        const API_KEY = 'AIzaSyD6qEm6UvTNbG0vR4cypJX8aZ2C4ZYvNLg'; 
-        const RANGE = 'Sheet1!A2:C';
+        const API_KEY = 'AIzaSyD6qEm6UvTNbG0vR4cypJX8aZ2C4ZYvNLg'; // ЗАМЕНИТЕ ЭТОТ ТЕКСТ НА ВАШ КЛЮЧ
+        const RANGE = 'Активность!A9:F';
 
         async function fetchData() {
-            // ИСПРАВЛЕНО: Корректный URL для Google Sheets API v4
             const url = `https://googleapis.com{SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
             
             try {
@@ -70,28 +68,32 @@
             const dataByDate = {};
 
             rows.forEach(row => {
-                const [date, name, calories] = row;
-                if (!date || !name) return;
+                const date = row[0];        // Столбец А (Дата)
+                const name = row[1];        // Столбец B (Участник)
+                const rawCalories = row[5]; // Столбец F (Сожжено ккал)
+                
+                if (!date || !name || !rawCalories) return;
+
+                // Удаляем текст " ккал" и буквы, преобразуя в число
+                const calories = parseInt(rawCalories.replace(/[^\d]/g, '')) || 0;
 
                 if (!dataByDate[date]) {
-                    dataByDate[date] = { 'Человек 1': 0, 'Человек 2': 0 };
+                    dataByDate[date] = { 'Вениамин': 0, 'Дарья': 0 };
                 }
 
-                // ИСПРАВЛЕНО: Сплюсовываем (+=) калории, если записей за один день несколько
-                if (name === 'Человек 1' || name === 'Человек 2') {
-                    dataByDate[date][name] += parseFloat(calories) || 0;
+                if (name === 'Вениамин' || name === 'Дарья') {
+                    dataByDate[date][name] += calories;
                 }
             });
 
-            // Сортируем даты по хронологии, чтобы график не перемешался
             const labels = Object.keys(dataByDate).sort((a, b) => new Date(a) - new Date(b));
             
-            const person1Calories = [];
-            const person2Calories = [];
+            const veniaminCalories = [];
+            const daryaCalories = [];
 
             labels.forEach(date => {
-                person1Calories.push(dataByDate[date]['Человек 1']);
-                person2Calories.push(dataByDate[date]['Человек 2']);
+                veniaminCalories.push(dataByDate[date]['Вениамин']);
+                daryaCalories.push(dataByDate[date]['Дарья']);
             });
 
             const ctx = document.getElementById('kbjuChart').getContext('2d');
@@ -102,14 +104,14 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Человек 1 (Ккал)',
-                            data: person1Calories,
+                            label: 'Вениамин (Ккал)',
+                            data: veniaminCalories,
                             backgroundColor: '#4e73df',
-                            borderRadius: 6 // Скругление столбцов для красоты
+                            borderRadius: 6
                         },
                         {
-                            label: 'Человек 2 (Ккал)',
-                            data: person2Calories,
+                            label: 'Дарья (Ккал)',
+                            data: daryaCalories,
                             backgroundColor: '#1cc88a',
                             borderRadius: 6
                         }
@@ -128,7 +130,7 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Калории (ккал)'
+                                text: 'Активные калории (ккал)'
                             }
                         },
                         x: {
