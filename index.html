@@ -47,7 +47,6 @@
       margin-top: 3px;
     }
 
-    /* Вес */
     .weight-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -82,7 +81,6 @@
     .ven .weight-value { color: var(--primary); }
     .dar .weight-value { color: var(--green); }
 
-    /* Статистика калорий */
     .stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -111,7 +109,6 @@
       margin-top: 3px;
     }
 
-    /* Карточки */
     .card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -216,12 +213,12 @@
       <div class="weight-card ven">
         <h3>Вениамин</h3>
         <div class="weight-value" id="venWeight">— кг</div>
-        <div class="weight-meta" id="venMeta">Старт 93 → Цель 87</div>
+        <div class="weight-meta" id="venMeta">Старт 93.00 → Цель 87.00</div>
       </div>
       <div class="weight-card dar">
         <h3>Дарья</h3>
         <div class="weight-value" id="darWeight">— кг</div>
-        <div class="weight-meta" id="darMeta">Старт 64 → Цель 60</div>
+        <div class="weight-meta" id="darMeta">Старт 64.00 → Цель 60.00</div>
       </div>
     </div>
 
@@ -354,7 +351,7 @@
           <div class="form-grid">
             <div>
               <label>Вес (кг)</label>
-              <input type="number" id="inputBodyWeight" min="0" step="0.1" placeholder="0.0">
+              <input type="number" id="inputBodyWeight" min="0" step="0.01" placeholder="0.00">
             </div>
             <div>
               <label>Заметки</label>
@@ -400,10 +397,9 @@
   const SHEET_ID = '1rYEecH-H5h0zCBcw-dyTcVqO4rCg3vpNh70Q4yW2ns0';
   const API_KEY = 'AIzaSyD6qEm6UvTNbG0vR4cypJX8aZ2C4ZYvNLg';
 
-  // Цели веса (можно потом читать из таблицы)
   const weightGoals = {
-    'Вениамин': { start: 93.0, goal: 87.0 },
-    'Дарья': { start: 64.0, goal: 60.0 }
+    'Вениамин': { start: 93.00, goal: 87.00 },
+    'Дарья': { start: 64.00, goal: 60.00 }
   };
 
   document.getElementById('inputDate').valueAsDate = new Date();
@@ -420,7 +416,6 @@
     weightFields.classList.toggle('hidden', val !== 'Профиль и Вес');
   });
 
-  // Отправка
   document.getElementById('trackerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const status = document.getElementById('statusMsg');
@@ -454,7 +449,6 @@
         document.getElementById('inputNotes').value
       ];
     } else {
-      // Взвешивание
       values = [
         document.getElementById('inputDate').value,
         document.getElementById('inputName').value,
@@ -475,7 +469,6 @@
       status.className = 'status success';
       status.textContent = 'Сохранено';
 
-      // Очистка
       if (sheetName === 'КБЖУ и Питание') {
         ['inputDish','inputWeightFood','inputCalories','inputProtein','inputFat','inputCarbs']
           .forEach(id => document.getElementById(id).value = '');
@@ -496,7 +489,6 @@
     }
   });
 
-  // ========== ДАННЫЕ ==========
   let weightChart, activityChart, nutritionChart;
 
   async function fetchSheet(range) {
@@ -527,7 +519,7 @@
     rows.forEach(row => {
       if (!row || row.length < 3) return;
       const date = row[0], name = row[1], weight = parseFloat(row[2]);
-      if (date && name && weight && result[name]) {
+      if (date && name && !isNaN(weight) && result[name]) {
         result[name].push({ date, weight });
       }
     });
@@ -629,22 +621,22 @@
     nutritionChart = renderBarChart('nutritionChart', nutData, nutritionChart);
     weightChart = renderWeightChart(weightData, weightChart);
 
-    // Текущий вес
+    // Текущий вес (точный до сотых)
     const lastVen = weightData['Вениамин'].slice(-1)[0];
     const lastDar = weightData['Дарья'].slice(-1)[0];
 
-    document.getElementById('venWeight').textContent = lastVen ? lastVen.weight + ' кг' : '— кг';
-    document.getElementById('darWeight').textContent = lastDar ? lastDar.weight + ' кг' : '— кг';
+    document.getElementById('venWeight').textContent = lastVen ? lastVen.weight.toFixed(2) + ' кг' : '— кг';
+    document.getElementById('darWeight').textContent = lastDar ? lastDar.weight.toFixed(2) + ' кг' : '— кг';
 
     if (lastVen) {
-      const diff = (lastVen.weight - weightGoals['Вениамин'].start).toFixed(1);
-      const left = (lastVen.weight - weightGoals['Вениамин'].goal).toFixed(1);
+      const diff = (lastVen.weight - weightGoals['Вениамин'].start).toFixed(2);
+      const left = (lastVen.weight - weightGoals['Вениамин'].goal).toFixed(2);
       document.getElementById('venMeta').textContent = `К старту: ${diff} кг • До цели: ${left} кг`;
     }
 
     if (lastDar) {
-      const diff = (lastDar.weight - weightGoals['Дарья'].start).toFixed(1);
-      const left = (lastDar.weight - weightGoals['Дарья'].goal).toFixed(1);
+      const diff = (lastDar.weight - weightGoals['Дарья'].start).toFixed(2);
+      const left = (lastDar.weight - weightGoals['Дарья'].goal).toFixed(2);
       document.getElementById('darMeta').textContent = `К старту: ${diff} кг • До цели: ${left} кг`;
     }
 
