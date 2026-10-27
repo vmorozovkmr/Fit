@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мой график КБЖУ</title>
-    <!-- Подключаем библиотеку Chart.js -->
-    <script src="https://jsdelivr.net"></script>
+    <!-- Стабильная библиотека графиков, которая точно загрузится -->
+    <script src="https://yastatic.net"></script>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -38,13 +38,17 @@
     </div>
 
     <script>
-        const SPREADSHEET_ID = '1rYEecH-H5h0zCBcw-dyTcVqO4rCg3vpNh70Q4yW2ns0'; 
-        const API_KEY = 'AIzaSyD6qEm6UvTNbG0vR4cypJX8aZ2C4ZYvNLg'; // ЗАМЕНИТЕ ЭТОТ ТЕКСТ НА ВАШ КЛЮЧ
-        const RANGE = 'Активность!A9:F';
+        // ==========================================
+        // 1. ВСТАВЬТЕ ВАШ КЛЮЧ МЕЖДУ КАВЫЧКАМИ НИЖЕ:
+        // ==========================================
+        const MY_API_KEY = 'AIzaSyD6qEm6UvTNbG0vR4cypJX8aZ2C4ZYvNLg';
+
+        
+        // Ниже ничего менять не нужно, код сам соберёт правильную ссылку
+        const SHEET_ID = '1rYEecH-H5h0zCBcw-dyTcVqO4rCg3vpNh70Q4yW2ns0';
+        const url = `https://googleapis.com{SHEET_ID}/values/%D0%90%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D1%81%D1%82%D1%8C!A9:F?key=${MY_API_KEY}`;
 
         async function fetchData() {
-            const url = `https://googleapis.com{SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-            
             try {
                 const response = await fetch(url);
                 if (!response.ok) {
@@ -68,13 +72,12 @@
             const dataByDate = {};
 
             rows.forEach(row => {
-                const date = row[0];        // Столбец А (Дата)
-                const name = row[1];        // Столбец B (Участник)
-                const rawCalories = row[5]; // Столбец F (Сожжено ккал)
+                const date = row[0];        // Дата
+                const name = row[1];        // Участник
+                const rawCalories = row[5]; // Сожжено ккал
                 
                 if (!date || !name || !rawCalories) return;
 
-                // Удаляем текст " ккал" и буквы, преобразуя в число
                 const calories = parseInt(rawCalories.replace(/[^\d]/g, '')) || 0;
 
                 if (!dataByDate[date]) {
@@ -106,39 +109,34 @@
                         {
                             label: 'Вениамин (Ккал)',
                             data: veniaminCalories,
-                            backgroundColor: '#4e73df',
-                            borderRadius: 6
+                            backgroundColor: '#4e73df'
                         },
                         {
                             label: 'Дарья (Ккал)',
                             data: daryaCalories,
-                            backgroundColor: '#1cc88a',
-                            borderRadius: 6
+                            backgroundColor: '#1cc88a'
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            },
+                            scaleLabel: {
                                 display: true,
-                                text: 'Активные калории (ккал)'
+                                labelString: 'Активные калории (ккал)'
                             }
-                        },
-                        x: {
-                            title: {
+                        }],
+                        xAxes: [{
+                            scaleLabel: {
                                 display: true,
-                                text: 'Дата'
+                                labelString: 'Дата'
                             }
-                        }
+                        }]
                     }
                 }
             });
