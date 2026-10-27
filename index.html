@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мой график КБЖУ</title>
-    <!-- Подключение актуальной библиотеки Chart.js -->
+    <title>Мой трекер: Активность и Питание</title>
+    <!-- Подключение Chart.js -->
     <script src="https://jsdelivr.net"></script>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 40px;
+            margin: 30px;
             background-color: #f8f9fc;
             color: #333;
         }
         .chart-container {
             position: relative;
-            margin: 20px auto;
-            height: 65vh;
+            margin: 30px auto;
+            height: 45vh;
             width: 85vw;
             background: white;
             padding: 20px;
@@ -26,54 +26,54 @@
         h2 {
             text-align: center;
             color: #4e73df;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
-    <h2>Сравнение калорийности</h2>
+    <h2>🔥 Расход калорий (Активность)</h2>
     <div class="chart-container">
-        <canvas id="kbjuChart"></canvas>
+        <canvas id="activityChart"></canvas>
+    </div>
+
+    <h2>🥗 Потребление калорий (Питание)</h2>
+    <div class="chart-container">
+        <canvas id="nutritionChart"></canvas>
     </div>
 
 <script>
-    // ==========================================
-    // 1. НАСТРОЙКА ИДЕНТИФИКАТОРОВ
-    // ==========================================
     const MY_API_KEY = 'AIzaSyD6qEm6UvTNbG0vR4cypJX8aZ2C4ZYvNLg'; 
     const SHEET_ID = '1rYEecH-H5h0zCBcw-dyTcVqO4rCg3vpNh70Q4yW2ns0';
     
-    // ИСПРАВЛЕНО: Корректный путь к Google Sheets API v4
-    const url = `https://googleapis.com{SHEET_ID}/values/%D0%90%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D1%81%D1%82%D1%8C!A9:F?key=${MY_API_KEY}`;
+    // URL для обоих листов (названия вкладок закодированы для безопасного запроса)
+    const urlActivity = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/%D0%90%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D1%81%D1%82%D1%8C!A9:F?key=${MY_API_KEY}`;
+    const urlNutrition = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/%D0%9A%D0%91%D0%96%D0%A3%20%D0%B8%20%D0%9F%D0%B8%D1%82%D0%B0%D0%BD%D0%B8%D0%B5!A9:F?key=${MY_API_KEY}`;
 
-    async function fetchData() {
+    async function fetchData(url) {
         try {
             const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Ошибка сети: ' + response.status);
-            }
+            if (!response.ok) throw new Error('Ошибка сети: ' + response.status);
             const data = await response.json();
-            return data.values;
+            return data.values || [];
         } catch (error) {
             console.error("Ошибка при получении данных:", error);
-            return null;
+            return [];
         }
     }
 
-    async function renderChart() {
-        const rows = await fetchData();
-        if (!rows || rows.length === 0) {
-            console.warn("Данные не найдены или таблица пуста.");
-            return;
-        }
-
+    function processRows(rows) {
         const dataByDate = {};
-        
         rows.forEach(row => {
-            const [date, name, , , , rawCalories] = row;
-            if (!date || !name || !rawCalories) return;
+            if (!row || row.length < 6) return;
+            
+            const date = row[0];
+            const name = row[1];
+            const rawCalories = row[5]; // Столбец F
 
-            const calories = parseInt(rawCalories.replace(/[^\d]/g, '')) || 0;
+            if (!date || !name || rawCalories === undefined) return;
+
+            const calories = parseInt(String(rawCalories).replace(/[^\d]/g, '')) || 0;
 
             if (!dataByDate[date]) {
                 dataByDate[date] = { 'Вениамин': 0, 'Дарья': 0 };
@@ -82,19 +82,20 @@
                 dataByDate[date][name] += calories;
             }
         });
+        return dataByDate;
+    }
 
+    function createChart(ctxId, dataByDate, yLabel) {
         const labels = Object.keys(dataByDate).sort((a, b) => new Date(a) - new Date(b));
-        const veniaminCalories = [];
-        const daryaCalories = [];
+        const veniaminData = [];
+        const daryaData = [];
 
         labels.forEach(date => {
-            veniaminCalories.push(dataByDate[date]['Вениамин']);
-            daryaCalories.push(dataByDate[date]['Дарья']);
+            veniaminData.push(dataByDate[date]['Вениамин']);
+            daryaData.push(dataByDate[date]['Дарья']);
         });
 
-        const ctx = document.getElementById('kbjuChart').getContext('2d');
-        
-        // ИСПРАВЛЕНО: Синтаксис параметров осей обновлен под Chart.js v4+
+        const ctx = document.getElementById(ctxId).getContext('2d');
         new Chart(ctx, {
             type: 'bar',
             data: {
@@ -102,12 +103,12 @@
                 datasets: [
                     {
                         label: 'Вениамин (Ккал)',
-                        data: veniaminCalories,
+                        data: veniaminData,
                         backgroundColor: '#4e73df'
                     },
                     {
                         label: 'Дарья (Ккал)',
-                        data: daryaCalories,
+                        data: daryaData,
                         backgroundColor: '#1cc88a'
                     }
                 ]
@@ -118,23 +119,33 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Активные калории (ккал)'
-                        }
+                        title: { display: true, text: yLabel }
                     },
                     x: {
-                        title: {
-                            display: true,
-                            text: 'Дата'
-                        }
+                        title: { display: true, text: 'Дата' }
                     }
                 }
             }
         });
     }
 
-    renderChart();
+    async function init() {
+        // Параллельный запрос к обоим листам
+        const [activityRows, nutritionRows] = await Promise.all([
+            fetchData(urlActivity),
+            fetchData(urlNutrition)
+        ]);
+
+        // Обработка данных
+        const activityData = processRows(activityRows);
+        const nutritionData = processRows(nutritionRows);
+
+        // Отрисовка двух графиков
+        createChart('activityChart', activityData, 'Сожжено активных ккал');
+        createChart('nutritionChart', nutritionData, 'Потребление пищи ккал');
+    }
+
+    init();
 </script>
 </body>
 </html>
