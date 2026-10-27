@@ -29,7 +29,7 @@
       min-height: 100vh;
     }
 
-    .container { max-width: 1100px; margin: 0 auto; }
+    .container { max-width: 980px; margin: 0 auto; }
 
     header {
       text-align: center;
@@ -37,64 +37,31 @@
     }
 
     header h1 {
-      font-size: 1.75rem;
+      font-size: 1.7rem;
       font-weight: 700;
       background: linear-gradient(90deg, #5b8def, #34d399);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    header p {
-      color: var(--muted);
-      margin-top: 4px;
-      font-size: 0.95rem;
-    }
+    header p { color: var(--muted); margin-top: 4px; }
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 14px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
-    }
-
-    .stat-card .label {
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .stat-card .value {
-      font-size: 1.45rem;
-      font-weight: 700;
-    }
-
-    .ven .value { color: var(--primary); }
-    .dar .value { color: var(--green); }
-
-    .form-card, .chart-card {
+    .form-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 22px;
-      margin-bottom: 24px;
+      padding: 24px;
+      margin-bottom: 28px;
     }
 
-    .form-card h2, .chart-card h3 {
-      font-size: 1.1rem;
-      margin-bottom: 18px;
-      color: var(--text);
+    .form-card h2 {
+      font-size: 1.15rem;
+      margin-bottom: 20px;
     }
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 14px;
       margin-bottom: 16px;
     }
@@ -121,16 +88,13 @@
       border-color: var(--primary);
     }
 
-    textarea {
-      resize: vertical;
-      min-height: 70px;
-    }
+    textarea { min-height: 70px; resize: vertical; }
 
     .btn-row {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 8px;
+      margin-top: 10px;
     }
 
     button {
@@ -140,7 +104,6 @@
       font-weight: 600;
       font-size: 0.95rem;
       cursor: pointer;
-      transition: 0.2s;
     }
 
     .btn-primary {
@@ -154,10 +117,9 @@
       border: 1px solid var(--border);
       color: var(--text);
     }
-    .btn-secondary:hover { border-color: var(--muted); }
 
     .status {
-      margin-top: 12px;
+      margin-top: 14px;
       font-size: 0.9rem;
       min-height: 22px;
     }
@@ -165,10 +127,7 @@
     .status.error { color: var(--red); }
     .status.loading { color: var(--orange); }
 
-    .chart-container {
-      position: relative;
-      height: 300px;
-    }
+    .hidden { display: none !important; }
 
     @media (max-width: 600px) {
       body { padding: 12px; }
@@ -183,42 +142,25 @@
       <p>Вениамин & Дарья</p>
     </header>
 
-    <!-- Сводки -->
-    <div class="stats">
-      <div class="stat-card ven">
-        <div class="label">Вениамин • сожжено сегодня</div>
-        <div class="value" id="statVenBurn">—</div>
-      </div>
-      <div class="stat-card dar">
-        <div class="label">Дарья • сожжено сегодня</div>
-        <div class="value" id="statDarBurn">—</div>
-      </div>
-      <div class="stat-card ven">
-        <div class="label">Вениамин • съедено сегодня</div>
-        <div class="value" id="statVenEat">—</div>
-      </div>
-      <div class="stat-card dar">
-        <div class="label">Дарья • съедено сегодня</div>
-        <div class="value" id="statDarEat">—</div>
-      </div>
-    </div>
-
-    <!-- Форма -->
     <div class="form-card">
       <h2>Добавить запись</h2>
+
       <form id="trackerForm">
+        <!-- Общие поля -->
         <div class="form-grid">
           <div>
             <label>Тип записи</label>
             <select id="targetSheet">
-              <option value="Активность">Активность (расход)</option>
-              <option value="КБЖУ и Питание">Питание (потребление)</option>
+              <option value="КБЖУ и Питание">🥗 Питание</option>
+              <option value="Активность">🔥 Активность</option>
             </select>
           </div>
+
           <div>
             <label>Дата</label>
             <input type="date" id="inputDate" required>
           </div>
+
           <div>
             <label>Участник</label>
             <select id="inputName">
@@ -226,221 +168,168 @@
               <option value="Дарья">Дарья</option>
             </select>
           </div>
-          <div>
-            <label id="descLabel">Вид активности</label>
-            <input type="text" id="inputDesc" placeholder="Зал / Бег / Завтрак..." required>
-          </div>
-          <div>
-            <label id="calLabel">Сожжено (ккал)</label>
-            <input type="number" id="inputCalories" min="0" placeholder="0" required>
-          </div>
-          <div id="durationBlock">
-            <label>Длительность (мин)</label>
-            <input type="number" id="inputDuration" min="0" placeholder="0">
-          </div>
-          <div id="locationBlock">
-            <label>Локация</label>
-            <select id="inputLocation">
-              <option value="Зал">Зал</option>
-              <option value="Дом">Дом</option>
-              <option value="Улица">Улица / Прогулка</option>
-              <option value="Другое">Другое</option>
-            </select>
+        </div>
+
+        <!-- ========== БЛОК ПИТАНИЯ ========== -->
+        <div id="nutritionFields">
+          <div class="form-grid">
+            <div>
+              <label>Прием пищи</label>
+              <select id="inputMeal">
+                <option value="Завтрак">Завтрак</option>
+                <option value="Обед">Обед</option>
+                <option value="Ужин">Ужин</option>
+                <option value="Перекус">Перекус</option>
+                <option value="Другое">Другое</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Блюдо / Продукт</label>
+              <input type="text" id="inputDish" placeholder="Овсянка, курица, банан...">
+            </div>
+
+            <div>
+              <label>Вес (г)</label>
+              <input type="number" id="inputWeight" min="0" step="1" placeholder="0">
+            </div>
+
+            <div>
+              <label>Калории (ккал)</label>
+              <input type="number" id="inputCalories" min="0" step="1" placeholder="0" required>
+            </div>
+
+            <div>
+              <label>Белки (г)</label>
+              <input type="number" id="inputProtein" min="0" step="0.1" placeholder="0">
+            </div>
+
+            <div>
+              <label>Жиры (г)</label>
+              <input type="number" id="inputFat" min="0" step="0.1" placeholder="0">
+            </div>
+
+            <div>
+              <label>Углеводы (г)</label>
+              <input type="number" id="inputCarbs" min="0" step="0.1" placeholder="0">
+            </div>
           </div>
         </div>
 
-        <div style="margin-bottom: 16px;">
-          <label>Заметки / Самочувствие</label>
-          <textarea id="inputNotes" placeholder="Как прошло, настроение..."></textarea>
+        <!-- ========== БЛОК АКТИВНОСТИ ========== -->
+        <div id="activityFields" class="hidden">
+          <div class="form-grid">
+            <div>
+              <label>Вид активности</label>
+              <select id="inputActivity">
+                <option value="Силовая (зал)">Силовая (зал)</option>
+                <option value="Кардио">Кардио</option>
+                <option value="Домашняя тренировка">Домашняя тренировка</option>
+                <option value="Прогулка">Прогулка</option>
+                <option value="Бег">Бег</option>
+                <option value="Велосипед">Велосипед</option>
+                <option value="Растяжка / Йога">Растяжка / Йога</option>
+                <option value="Другое">Другое</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Локация</label>
+              <select id="inputLocation">
+                <option value="Зал">Зал</option>
+                <option value="Дом">Дом</option>
+                <option value="Улица">Улица</option>
+                <option value="Парк">Парк</option>
+                <option value="Другое">Другое</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Длительность (мин)</label>
+              <input type="number" id="inputDuration" min="0" placeholder="0">
+            </div>
+
+            <div>
+              <label>Сожжено (ккал)</label>
+              <input type="number" id="inputBurned" min="0" placeholder="0" required>
+            </div>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <label>Самочувствие / Заметки</label>
+            <textarea id="inputNotes" placeholder="Как прошло, настроение..."></textarea>
+          </div>
         </div>
 
         <div class="btn-row">
-          <button type="submit" class="btn-primary">Сохранить</button>
-          <button type="button" class="btn-secondary" onclick="refreshCharts()">Обновить графики</button>
+          <button type="submit" class="btn-primary">Сохранить в таблицу</button>
         </div>
+
         <div class="status" id="statusMsg"></div>
       </form>
-    </div>
-
-    <!-- Графики -->
-    <div class="chart-card">
-      <h3>Расход калорий (Активность)</h3>
-      <div class="chart-container">
-        <canvas id="activityChart"></canvas>
-      </div>
-    </div>
-
-    <div class="chart-card">
-      <h3>Потребление калорий (Питание)</h3>
-      <div class="chart-container">
-        <canvas id="nutritionChart"></canvas>
-      </div>
     </div>
   </div>
 
 <script>
   // ====================== НАСТРОЙКИ ======================
-  const MY_API_KEY = 'AIzaSyD6qEm6UvTNbG0vR4cypJX8aZ2C4ZYvNLg';
-  const SHEET_ID = '1rYEecH-H5h0zCBcw-dyTcVqO4rCg3vpNh70Q4yW2ns0';
-  
-  // ← СЮДА вставь свой URL веб-приложения Apps Script
+  // ← СЮДА вставь свой актуальный URL Apps Script
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcqrKN9yEn-mzbjHNmizhsEtbmBezYIksjg5_IcxgmlDXWjy-FUFQX-VoEauvXtx0/exec';
 
-  const urlActivity  = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent('Активность')}!A9:I?key=${MY_API_KEY}`;
-  const urlNutrition = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent('КБЖУ и Питание')}!A9:I?key=${MY_API_KEY}`;
-
-  let activityChartInstance = null;
-  let nutritionChartInstance = null;
-
-  // Сегодняшняя дата по умолчанию
+  // Сегодняшняя дата
   document.getElementById('inputDate').valueAsDate = new Date();
 
-  // Меняем поля в зависимости от типа
-  document.getElementById('targetSheet').addEventListener('change', function () {
-    const isActivity = this.value === 'Активность';
-    document.getElementById('descLabel').textContent = isActivity ? 'Вид активности' : 'Блюдо / Приём пищи';
-    document.getElementById('calLabel').textContent = isActivity ? 'Сожжено (ккал)' : 'Калории (ккал)';
-    document.getElementById('durationBlock').style.display = isActivity ? 'block' : 'none';
-    document.getElementById('locationBlock').style.display = isActivity ? 'block' : 'none';
+  // Переключение форм
+  const sheetSelect = document.getElementById('targetSheet');
+  const nutritionFields = document.getElementById('nutritionFields');
+  const activityFields = document.getElementById('activityFields');
+
+  sheetSelect.addEventListener('change', function () {
+    if (this.value === 'КБЖУ и Питание') {
+      nutritionFields.classList.remove('hidden');
+      activityFields.classList.add('hidden');
+    } else {
+      nutritionFields.classList.add('hidden');
+      activityFields.classList.remove('hidden');
+    }
   });
 
-  // ====================== ФУНКЦИИ ======================
-  async function fetchData(url) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(res.status);
-      const data = await res.json();
-      return data.values || [];
-    } catch (e) {
-      console.error(e);
-      return [];
-    }
-  }
-
-  function processRows(rows) {
-    const result = {};
-    rows.forEach(row => {
-      if (!row || row.length < 2) return;
-      const date = row[0];
-      const name = row[1];
-      const calories = parseInt(String(row[5] || 0).replace(/[^\d]/g, '')) || 0;
-
-      if (!date || !name) return;
-      if (!result[date]) result[date] = { 'Вениамин': 0, 'Дарья': 0 };
-      if (name === 'Вениамин' || name === 'Дарья') {
-        result[date][name] += calories;
-      }
-    });
-    return result;
-  }
-
-  function renderChart(canvasId, dataByDate, oldInstance) {
-    if (oldInstance) oldInstance.destroy();
-
-    const labels = Object.keys(dataByDate).sort((a, b) => new Date(a) - new Date(b));
-    const ven = labels.map(d => dataByDate[d]['Вениамин'] || 0);
-    const dar = labels.map(d => dataByDate[d]['Дарья'] || 0);
-
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    return new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels.length ? labels : ['Нет данных'],
-        datasets: [
-          {
-            label: 'Вениамин',
-            data: labels.length ? ven : [0],
-            backgroundColor: 'rgba(91, 141, 239, 0.85)',
-            borderRadius: 5
-          },
-          {
-            label: 'Дарья',
-            data: labels.length ? dar : [0],
-            backgroundColor: 'rgba(52, 211, 153, 0.85)',
-            borderRadius: 5
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { labels: { color: '#9aa0a6' } }
-        },
-        scales: {
-          x: { ticks: { color: '#9aa0a6' }, grid: { color: 'rgba(255,255,255,0.04)' } },
-          y: { beginAtZero: true, ticks: { color: '#9aa0a6' }, grid: { color: 'rgba(255,255,255,0.04)' } }
-        }
-      }
-    });
-  }
-
-  function updateTodayStats(actData, nutData) {
-    const today = new Date().toISOString().slice(0, 10);
-    
-    function getToday(data) {
-      // Пробуем разные форматы даты
-      for (let key in data) {
-        if (key.includes(today.slice(8)) || key.includes(today.slice(5)) || key === today) {
-          return data[key];
-        }
-      }
-      return { 'Вениамин': 0, 'Дарья': 0 };
-    }
-
-    const act = getToday(actData);
-    const nut = getToday(nutData);
-
-    document.getElementById('statVenBurn').textContent = (act['Вениамин'] || 0) + ' ккал';
-    document.getElementById('statDarBurn').textContent = (act['Дарья'] || 0) + ' ккал';
-    document.getElementById('statVenEat').textContent = (nut['Вениамин'] || 0) + ' ккал';
-    document.getElementById('statDarEat').textContent = (nut['Дарья'] || 0) + ' ккал';
-  }
-
-  async function refreshCharts() {
-    const status = document.getElementById('statusMsg');
-    status.className = 'status loading';
-    status.textContent = 'Обновляю...';
-
-    const [actRows, nutRows] = await Promise.all([
-      fetchData(urlActivity),
-      fetchData(urlNutrition)
-    ]);
-
-    const actData = processRows(actRows);
-    const nutData = processRows(nutRows);
-
-    activityChartInstance = renderChart('activityChart', actData, activityChartInstance);
-    nutritionChartInstance = renderChart('nutritionChart', nutData, nutritionChartInstance);
-    updateTodayStats(actData, nutData);
-
-    status.className = 'status success';
-    status.textContent = 'Обновлено';
-    setTimeout(() => status.textContent = '', 2000);
-  }
-
-  // Отправка
+  // Отправка формы
   document.getElementById('trackerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const status = document.getElementById('statusMsg');
     status.className = 'status loading';
     status.textContent = 'Сохраняю...';
 
-    const sheetName = document.getElementById('targetSheet').value;
-    const isActivity = sheetName === 'Активность';
+    const sheetName = sheetSelect.value;
+    let rowValues = [];
 
-    // Порядок под твой скрипт (пишет с колонки B):
-    // B: Дата, C: Участник, D: Описание, E: Локация, F: Длительность, G: Калории, H: Неделя, I: Заметки
-    const rowValues = [
-      document.getElementById('inputDate').value,
-      document.getElementById('inputName').value,
-      document.getElementById('inputDesc').value,
-      isActivity ? document.getElementById('inputLocation').value : '',
-      isActivity ? (Number(document.getElementById('inputDuration').value) || 0) : '',
-      Number(document.getElementById('inputCalories').value) || 0,
-      '', // Неделя (можно потом формулой)
-      document.getElementById('inputNotes').value
-    ];
+    if (sheetName === 'КБЖУ и Питание') {
+      // B → J
+      rowValues = [
+        document.getElementById('inputDate').value,                    // B Дата
+        document.getElementById('inputName').value,                    // C Участник
+        document.getElementById('inputMeal').value,                    // D Прием пищи
+        document.getElementById('inputDish').value,                    // E Блюдо
+        Number(document.getElementById('inputWeight').value) || 0,     // F Вес
+        Number(document.getElementById('inputCalories').value) || 0,   // G Калории
+        Number(document.getElementById('inputProtein').value) || 0,    // H Белки
+        Number(document.getElementById('inputFat').value) || 0,        // I Жиры
+        Number(document.getElementById('inputCarbs').value) || 0       // J Углеводы
+      ];
+    } else {
+      // Активность: B → I
+      rowValues = [
+        document.getElementById('inputDate').value,                    // B Дата
+        document.getElementById('inputName').value,                    // C Участник
+        document.getElementById('inputActivity').value,                // D Вид активности
+        document.getElementById('inputLocation').value,                // E Локация
+        Number(document.getElementById('inputDuration').value) || 0,   // F Длительность
+        Number(document.getElementById('inputBurned').value) || 0,     // G Сожжено
+        '',                                                            // H Неделя (пусто)
+        document.getElementById('inputNotes').value                    // I Заметки
+      ];
+    }
 
     try {
       await fetch(APPS_SCRIPT_URL, {
@@ -454,24 +343,28 @@
       });
 
       status.className = 'status success';
-      status.textContent = 'Запись отправлена!';
+      status.textContent = 'Запись успешно добавлена!';
 
-      // Очистка полей
-      document.getElementById('inputDesc').value = '';
-      document.getElementById('inputCalories').value = '';
-      document.getElementById('inputDuration').value = '';
-      document.getElementById('inputNotes').value = '';
+      // Очистка
+      if (sheetName === 'КБЖУ и Питание') {
+        document.getElementById('inputDish').value = '';
+        document.getElementById('inputWeight').value = '';
+        document.getElementById('inputCalories').value = '';
+        document.getElementById('inputProtein').value = '';
+        document.getElementById('inputFat').value = '';
+        document.getElementById('inputCarbs').value = '';
+      } else {
+        document.getElementById('inputDuration').value = '';
+        document.getElementById('inputBurned').value = '';
+        document.getElementById('inputNotes').value = '';
+      }
 
-      setTimeout(refreshCharts, 1500);
     } catch (err) {
       status.className = 'status error';
-      status.textContent = 'Ошибка отправки';
+      status.textContent = 'Ошибка отправки. Проверь URL Apps Script.';
       console.error(err);
     }
   });
-
-  // Старт
-  refreshCharts();
 </script>
 </body>
 </html>
